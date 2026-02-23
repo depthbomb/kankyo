@@ -9,16 +9,7 @@ from datetime import timedelta
 from decimal import Decimal, InvalidOperation
 from enum import Enum
 from pathlib import Path
-from typing import (
-    Any,
-    Callable,
-    Container,
-    Generic,
-    Mapping,
-    Pattern,
-    Sequence,
-    TypeVar,
-)
+from typing import Any, Callable, cast, Collection, Generic, Mapping, Pattern, Sequence, TypeVar
 from urllib.parse import urlparse
 from uuid import UUID
 
@@ -80,8 +71,8 @@ class _EnvType(Generic[T]):
         if self._default_factory is not None:
             return self._default_factory()
         if isinstance(self._default, _IMMUTABLE_DEFAULT_TYPES) or isinstance(self._default, Enum):
-            return self._default  # type: ignore[return-value]
-        return deepcopy(self._default)  # type: ignore[return-value]
+            return cast(T, self._default)
+        return cast(T, deepcopy(self._default))
 
     def has_explicit_strict(self) -> bool:
         return self._strict_explicit
@@ -154,7 +145,7 @@ class EnvStr(_EnvType[str]):
         min_length: int | None = None,
         max_length: int | None = None,
         pattern: str | Pattern[str] | None = None,
-        choices: Container[str] | None = None,
+        choices: Collection[str] | None = None,
         strip: bool = True,
         validators: Sequence[Callable[[str, str], None]] | None = None,
     ) -> None:
@@ -266,7 +257,7 @@ class EnvInt(_EnvType[int]):
         gt: int | None = None,
         le: int | None = None,
         lt: int | None = None,
-        choices: Container[int] | None = None,
+        choices: Collection[int] | None = None,
         validators: Sequence[Callable[[str, int], None]] | None = None,
     ) -> None:
         super().__init__(
@@ -594,7 +585,7 @@ class EnvPath(_EnvType[Path]):
     ) -> None:
         super().__init__(
             default=Path(default).expanduser() if isinstance(default, (str, Path)) else default,
-            default_factory=default_factory,
+            default_factory=cast(Callable[[], Path] | None, default_factory),
             strict=strict,
             validators=validators,
         )
@@ -786,7 +777,7 @@ class EnvDecimal(_EnvType[Decimal]):
         gt: Decimal | None = None,
         le: Decimal | None = None,
         lt: Decimal | None = None,
-        choices: Container[Decimal] | None = None,
+        choices: Collection[Decimal] | None = None,
         validators: Sequence[Callable[[str, Decimal], None]] | None = None,
     ) -> None:
         super().__init__(
@@ -1000,7 +991,7 @@ class EnvUUID(_EnvType[UUID]):
         default: UUID | str | Any = _UNSET,
         default_factory: Callable[[], UUID] | None = None,
         strict: bool | None = None,
-        versions: Container[int] | None = None,
+        versions: Collection[int] | None = None,
         validators: Sequence[Callable[[str, UUID], None]] | None = None,
     ) -> None:
         super().__init__(
@@ -1231,7 +1222,7 @@ class EnvMapping(_EnvType[dict[str, Any]]):
     ) -> None:
         super().__init__(
             default=default,
-            default_factory=default_factory,
+            default_factory=cast(Callable[[], dict[str, Any]] | None, default_factory),
             strict=strict,
             validators=validators,
         )
@@ -1296,7 +1287,7 @@ class EnvListOfSchema(_EnvType[list[dict[str, Any]]]):
     ) -> None:
         super().__init__(
             default=default,
-            default_factory=default_factory,
+            default_factory=cast(Callable[[], list[dict[str, Any]]] | None, default_factory),
             strict=strict,
             validators=validators,
         )

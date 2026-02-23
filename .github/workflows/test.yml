@@ -30,8 +30,12 @@ jobs:
       - name: Run tests
         run: python -m pytest tests/ -v
 
+      - name: Run type checks
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
+        run: python -m mypy
+
       - name: Bytecode compile check
-        run: python -m compileall -q kankyo tests
+        run: python -m compileall -q ryuuseigun tests
 
   package:
     runs-on: ubuntu-latest

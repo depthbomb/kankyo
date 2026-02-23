@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast, Iterator, Mapping, TypeVar
 
-from .exceptions import EnvMissingError
+from .exceptions import EnvMissingError, EnvSchemaError
 from .types import _EnvType, _UNSET, EnvStr
 
 T = TypeVar('T')
@@ -529,9 +529,7 @@ def _raise_group(errors: list[Exception]) -> None:
         return
 
     if sys.version_info >= (3, 11):
-        raise ExceptionGroup(  # type: ignore[name-defined]  # noqa: F821
-            'Multiple environment variable errors', errors
-        )
+        raise ExceptionGroup('Multiple environment variable errors', errors)
 
     # Fallback: flatten into a single EnvSchemaError message
     lines = '\n'.join(f'  • {e}' for e in errors)

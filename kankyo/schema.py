@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Generic, TypeVar
+from typing import Any, Callable, cast, Generic, Protocol, TypeVar
 
 from .exceptions import EnvSchemaError
 from .types import _EnvType
@@ -38,7 +38,7 @@ class EnvVar(Generic[T]):
         if not key:
             raise EnvSchemaError('EnvVar key must be a non-empty string.')
         self.key = key
-        self.spec: _EnvType[T] = spec or _default_spec()  # type: ignore[assignment]
+        self.spec: _EnvType[T] = spec if spec is not None else cast(_EnvType[T], _default_spec())
         self.description = description
         self._attr_name: str = ''
 
@@ -49,9 +49,9 @@ class EnvVar(Generic[T]):
     # class.
     def __get__(self, obj: Any, objtype: type | None = None) -> 'T | EnvVar[T]':
         if obj is None:
-            return self  # type: ignore[return-value]
+            return self
         try:
-            return obj.__dict__[self._attr_name]
+            return cast(T, obj.__dict__[self._attr_name])
         except KeyError:
             raise AttributeError(
                 f'"{type(obj).__name__}.{self._attr_name}" has not been resolved yet. '
@@ -112,7 +112,7 @@ class EnvNested(Generic[S]):
         if obj is None:
             return self
         try:
-            return obj.__dict__[self._attr_name]
+            return cast(S, obj.__dict__[self._attr_name])
         except KeyError:
             raise AttributeError(
                 f'"{type(obj).__name__}.{self._attr_name}" has not been resolved yet.'
@@ -152,7 +152,7 @@ class EnvComputed(Generic[T]):
         if obj is None:
             return self
         try:
-            return obj.__dict__[self._attr_name]
+            return cast(T, obj.__dict__[self._attr_name])
         except KeyError:
             raise AttributeError(
                 f'"{type(obj).__name__}.{self._attr_name}" has not been resolved yet.'
@@ -215,8 +215,15 @@ class _EnvSchemaMeta(type):
         namespace['__env_computed_fields__'] = computed_fields
         return super().__new__(mcs, name, bases, namespace)
 
+
+class _EnvReader(Protocol):
+    def get(self, key: str, spec: _EnvType[Any] | None = None) -> Any: ...
+    def require(self, key: str, spec: _EnvType[Any] | None = None) -> Any: ...
+    def get_raw(self, key: str, default: str | None = None) -> str | None: ...
+    def is_set(self, key: str) -> bool: ...
+
 class _PrefixedEnvProxy:
-    def __init__(self, env: 'Env', prefix: str, separator: str) -> None:  # noqa: F821
+    def __init__(self, env: _EnvReader, prefix: str, separator: str) -> None:
         self._env = env
         self._prefix = prefix
         self._separator = separator
@@ -271,26 +278,26 @@ class EnvSchema(metaclass=_EnvSchemaMeta):
     __env_nested_fields__: dict[str, EnvNested[Any]]
     __env_computed_fields__: dict[str, EnvComputed[Any]]
 
-    def __init__(self, env: 'Env') -> None:  # noqa: F821  # forward ref
+    def __init__(self, env: _EnvReader) -> None:
         errors: list[str] = []
-        for attr, field in self.__env_fields__.items():
+        for attr, env_field in self.__env_fields__.items():
             try:
-                value = env.get(field.key, field.spec)
+                value = env.get(env_field.key, env_field.spec)
                 object.__setattr__(self, attr, value)
             except Exception as exc:  # noqa: BLE001
-                errors.append(f'  • {field.key}: {exc}')
+                errors.append(f'  • {env_field.key}: {exc}')
 
-        for attr, field in self.__env_nested_fields__.items():
+        for attr, nested_field in self.__env_nested_fields__.items():
             try:
-                proxy = _PrefixedEnvProxy(env, field.prefix, field.separator)
-                value = field.schema_cls(proxy)  # type: ignore[arg-type]
+                proxy = _PrefixedEnvProxy(env, nested_field.prefix, nested_field.separator)
+                value = nested_field.schema_cls(proxy)
                 object.__setattr__(self, attr, value)
             except Exception as exc:  # noqa: BLE001
-                errors.append(f'  • {field.prefix}{field.separator}*: {exc}')
+                errors.append(f'  • {nested_field.prefix}{nested_field.separator}*: {exc}')
 
-        for attr, field in self.__env_computed_fields__.items():
+        for attr, computed_field in self.__env_computed_fields__.items():
             try:
-                value = field.compute(self)
+                value = computed_field.compute(self)
                 object.__setattr__(self, attr, value)
             except Exception as exc:  # noqa: BLE001
                 errors.append(f'  • computed "{attr}": {exc}')
@@ -327,4 +334,4 @@ class EnvSchema(metaclass=_EnvSchemaMeta):
 # (actual definition lives in kankyo.core)
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from .core import Env
+    pass
