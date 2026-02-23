@@ -4,17 +4,17 @@ build-backend = 'hatchling.build'
 
 [project]
 name = "kankyo"
-version = "0.1.0"
+version = "1.0.0"
 authors = [{ name = 'depthbomb', email = 'depthbomb@super.fish' }]
 repository = "https://github.com/depthbomb/kankyo"
-description = "A type-safe, validated, library for loading and retrieving environment variables."
+description = "A type-safe, validated library for loading and retrieving environment variables."
 requires-python = ">=3.11"
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ['LICEN[CS]E*']
 
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: MacOS",
@@ -25,8 +25,10 @@ classifiers = [
     "Topic :: Software Development",
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -36,6 +38,7 @@ classifiers = [
 
 [project.urls]
 Source = "https://github.com/depthbomb/kankyo"
+Documentation = "https://github.com/depthbomb/kankyo?tab=readme-ov-file#quick-start"
 Issues = "https://github.com/depthbomb/kankyo/issues"
 
 [project.optional-dependencies]

@@ -32,6 +32,9 @@ _IMMUTABLE_DEFAULT_TYPES = (
 )
 _MUTABLE_DEFAULT_TYPES = (list, dict, set, bytearray)
 
+_TRUE_STRINGS: frozenset[str] = frozenset({'1', 'true', 'yes', 'on', 'enable', 'enabled'})
+_FALSE_STRINGS: frozenset[str] = frozenset({'0', 'false', 'no', 'off', 'disable', 'disabled'})
+
 class _EnvType(Generic[T]):
     """
     Abstract base for all typed env-var descriptors.
@@ -370,10 +373,6 @@ class EnvFloat(_EnvType[float]):
             raise EnvValidationError(key, str(value), f'{value} > {self._le} (le)')
         if self._lt is not None and value >= self._lt:
             raise EnvValidationError(key, str(value), f'{value} >= {self._lt} (lt)')
-
-
-_TRUE_STRINGS: frozenset[str] = frozenset({'1', 'true', 'yes', 'on', 'enable', 'enabled'})
-_FALSE_STRINGS: frozenset[str] = frozenset({'0', 'false', 'no', 'off', 'disable', 'disabled'})
 
 class EnvBool(_EnvType[bool]):
     """

@@ -215,7 +215,6 @@ class _EnvSchemaMeta(type):
         namespace['__env_computed_fields__'] = computed_fields
         return super().__new__(mcs, name, bases, namespace)
 
-
 class _EnvReader(Protocol):
     def get(self, key: str, spec: _EnvType[Any] | None = None) -> Any: ...
     def require(self, key: str, spec: _EnvType[Any] | None = None) -> Any: ...
