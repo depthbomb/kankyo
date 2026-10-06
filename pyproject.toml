@@ -1,0 +1,51 @@
+[build-system]
+requires = ['setuptools>=84.0.0']
+build-backend = 'setuptools.build_meta'
+
+[project]
+name = 'kankyo'
+version = '1.0.1'
+description = 'Define an environment schema and generate a typed Python configuration client.'
+authors = [{ name = 'depthbomb', email = 'depthbomb@super.fish' }]
+requires-python = '>=3.14'
+readme = 'README.md'
+license = 'Apache-2.0'
+license-files = ['LICENSE']
+dependencies = []
+classifiers = [
+    'Development Status :: 3 - Alpha',
+    'Intended Audience :: Developers',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python :: 3 :: Only',
+    'Programming Language :: Python :: 3.14',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+    'Typing :: Typed',
+]
+
+[project.urls]
+Source = 'https://github.com/depthbomb/kankyo'
+Documentation = 'https://github.com/depthbomb/kankyo#readme'
+Issues = 'https://github.com/depthbomb/kankyo/issues'
+
+[project.scripts]
+kankyo = 'kankyo.cli:main'
+
+[project.optional-dependencies]
+dev = ['pytest>=9.0', 'pytest-cov>=7.0', 'mypy>=1.13', 'build>=1.3', 'twine>=6.2']
+
+[tool.setuptools]
+packages = ['kankyo']
+package-dir = {'' = '.'}
+
+[tool.setuptools.package-data]
+kankyo = ['py.typed']
+
+[tool.mypy]
+python_version = '3.14'
+files = ['kankyo', 'examples']
+strict = true
+show_error_codes = true
+
+[tool.pytest.ini_options]
+testpaths = ['tests']
+addopts = '-ra'
