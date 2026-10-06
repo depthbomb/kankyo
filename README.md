@@ -215,7 +215,7 @@ as the output. Don't format generated files separately, since that would cause f
 
 For programmatic generation, `kankyo.generate` exposes `load_schema()`, `render()`, and `generate()`.
 
-## Development and publishing
+## Development
 
 ```shell
 python -m venv .venv
@@ -231,10 +231,3 @@ python -m twine check --strict dist/*
 `Tests` runs on Linux, Windows, and macOS with Python 3.14. It checks types and generated output, builds
 the wheel from the sdist, verifies package metadata, and tests the installed wheel outside the checkout with
 coverage. Distribution and coverage artifacts are retained for 14 days.
-
-`Release` reuses those checks. Publishing a non-prerelease GitHub release with tag `v<project.version>` publishes
-the validated artifacts to PyPI. Manual workflow runs and prereleases validate without publishing.
-
-To publish, configure the GitHub `pypi` environment and a PyPI Trusted Publisher for owner `depthbomb`,
-repository `kankyo`, workflow `release.yml`, and environment `pypi`. No PyPI API token is used. The distribution
-version lives in `pyproject.toml`; `kankyo --version` reads the installed package metadata.
