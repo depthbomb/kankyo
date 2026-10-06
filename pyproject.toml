@@ -9,7 +9,7 @@ description = 'Define an environment schema and generate a typed Python configur
 authors = [{ name = 'depthbomb', email = 'depthbomb@super.fish' }]
 requires-python = '>=3.14'
 readme = 'README.md'
-license = 'Apache-2.0'
+license = 'MIT'
 license-files = ['LICENSE']
 dependencies = []
 classifiers = [
